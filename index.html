@@ -1,6 +1,6 @@
 <!doctype html>
 <html>
-  <head>
+<head>
     <meta charset="utf-8" />
     <script type="importmap">
       {
@@ -11,842 +11,280 @@
       }
     </script>
     <style>
-      /* スタイルは変更なし */
-      body { margin: 0; overflow: hidden; } /* スクロールバー防止 */
+      /* 基本スタイル */
+      body { margin: 0; overflow: hidden; }
       canvas { display: block; }
-      .label {
-        color: #FFF;
-        font-family: sans-serif;
-        padding: 2px;
-        background: rgba( 0, 0, 0, .6 );
-        border-radius: 3px;
-        font-size: 12px;
-      }
-      #controlPanel {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background: rgba(0, 0, 0, 0.7);
-        color: white;
-        padding: 10px;
-        border-radius: 5px;
-        z-index: 100;
-        font-family: sans-serif;
-        font-size: 14px;
-      }
-      #infoPanel {
-        position: absolute;
-        bottom: 10px;
-        right: 10px;
-        background: rgba(0, 0, 0, 0.7);
-        color: white;
-        padding: 10px;
-        border-radius: 5px;
-        display: none;
-        max-width: 300px;
-        font-family: sans-serif;
-        font-size: 13px;
-      }
-      button, input[type="range"], input[type="datetime-local"] {
-        margin: 5px 0;
-        padding: 6px 10px;
-        border: none;
-        border-radius: 3px;
-        background-color: #444;
-        color: white;
-        cursor: pointer;
-      }
-      button:hover {
-        background-color: #555;
-      }
-      input[type="range"] {
-        width: 150px;
-        vertical-align: middle;
-        padding: 0;
-      }
-       input[type="datetime-local"] {
-         width: 180px;
-         background-color: #333;
-       }
-      label {
-        margin-right: 5px;
-        vertical-align: middle;
-      }
-      h3, h4 {
-        margin-top: 0;
-        margin-bottom: 10px;
-      }
-       #date {
-         position: absolute;
-         top: 10px;
-         right: 10px; /* 位置変更 */
-         color: white;
-         background: rgba(0,0,0,0.5);
-         padding: 5px 8px;
-         border-radius: 3px;
-         font-family: monospace; /* 等幅フォント */
-         font-size: 12px;
-         z-index: 99;
-       }
-      .toggleMode {
-        margin-bottom: 10px;
-        padding: 5px;
-        display: flex;
-        justify-content: space-between;
-        background: rgba(20, 20, 40, 0.6);
-        border-radius: 3px;
-      }
-      .toggleMode button {
-        flex: 1;
-        margin: 0 2px;
-        padding: 4px 5px;
-        font-size: 12px;
-      }
-      .selected {
-        background-color: #3070c0;
-        color: white;
-      }
-      .button-group button { /* ボタンを横並びにするための調整 */
-         margin-right: 5px;
-      }
-      .button-group button:last-child {
-         margin-right: 0;
-      }
-      .control-row { /* コントロールを整理 */
-         margin-bottom: 8px;
-      }
+      .label { color: #FFF; font-family: sans-serif; padding: 2px; background: rgba( 0, 0, 0, .6 ); border-radius: 3px; font-size: 12px; }
+      #controlPanel { position: absolute; top: 10px; left: 10px; background: rgba(0, 0, 0, 0.7); color: white; padding: 10px; border-radius: 5px; z-index: 100; font-family: sans-serif; font-size: 14px; max-height: calc(100vh - 40px); overflow-y: auto; }
+      #infoPanel { position: absolute; bottom: 10px; right: 10px; background: rgba(0, 0, 0, 0.7); color: white; padding: 10px; border-radius: 5px; display: none; max-width: 300px; font-family: sans-serif; font-size: 13px; z-index: 101; }
+      button, input[type="range"], input[type="datetime-local"], input[type="checkbox"] { margin: 5px 0; padding: 6px 10px; border: none; border-radius: 3px; background-color: #444; color: white; cursor: pointer; font-size: 13px; vertical-align: middle; }
+      button:hover { background-color: #555; }
+      input[type="range"] { width: 150px; padding: 0; }
+      input[type="datetime-local"] { width: 180px; background-color: #333; }
+      input[type="checkbox"] { width: 14px; height: 14px; padding: 0; margin: 0 5px 0 0; cursor: pointer; }
+      label { margin-right: 5px; vertical-align: middle; }
+      h3, h4 { margin-top: 0; margin-bottom: 10px; }
+      #date { position: absolute; top: 10px; right: 10px; color: white; background: rgba(0,0,0,0.5); padding: 5px 8px; border-radius: 3px; font-family: monospace; font-size: 12px; z-index: 99; }
+      .toggleMode { margin-bottom: 10px; padding: 5px; display: flex; justify-content: space-between; background: rgba(20, 20, 40, 0.6); border-radius: 3px; }
+      .toggleMode button { flex: 1; margin: 0 2px; padding: 4px 5px; font-size: 12px; }
+      .selected { background-color: #3070c0; color: white; }
+      .button-group button { margin-right: 5px; }
+      .button-group button:last-child { margin-right: 0; }
+      .control-row { margin-bottom: 8px; }
+      #planetSelection { margin-top: 15px; border-top: 1px solid #555; padding-top: 10px; }
+      #planetList { max-height: 200px; overflow-y: auto; margin-bottom: 10px; border: 1px solid #333; padding: 5px; background: rgba(20,20,30,0.5); }
+      .planet-list-item { display: flex; align-items: center; margin: 3px 5px; }
+      .planet-list-item button { flex-grow: 1; text-align: left; padding: 5px 8px; font-size: 12px; margin: 0; background-color: #444; border: none; color: white; cursor: pointer; border-radius: 3px; }
+      .planet-list-item button:hover { background-color: #555; }
+      .planet-list-item input[type="checkbox"] { flex-shrink: 0; margin-left: 8px; background-color: #444; }
+      .selected-button { background-color: #3070c0 !important; color: white; font-weight: bold; }
+      #clearSelectionBtn { width: calc(100% - 10px); margin: 0 5px; background-color: #633; }
+      #clearSelectionBtn:hover { background-color: #844; }
     </style>
     <script type="module">
       import * as THREE from "three";
       import { OrbitControls } from "three/addons/controls/OrbitControls.js";
       import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 
-      // 惑星データ (変更なし)
+      // ===== 惑星・天体データ =====
+      const AU = 149597870.7;
       const planets = [
-        { index: 0, name: "Sun", jname: "太陽", size: 696340, radius: 0, period: 0, color: 0xffff00,
-          e: 0, i: 0, omega: 0, isStar: true, description: "太陽系の中心にある恒星。太陽系の総質量の99.86%を占める。" },
-        { index: 1, name: "Mercury", jname: "水星", size: 2439, radius: 57910000, period: 87.969, color: 0x9090a0,
-          e: 0.2056, i: 7.005, omega: 48.33, description: "太陽に最も近い惑星で、表面温度が非常に高い。" },
-        { index: 2, name: "Venus", jname: "金星", size: 6051, radius: 108208930, period: 224.701, color: 0xf0c000,
-          e: 0.0068, i: 3.39, omega: 76.68, description: "地球に大きさが近く、濃い二酸化炭素の大気に覆われている。" },
-        { index: 3, name: "Earth", jname: "地球", size: 6356, radius: 149600000, period: 365.256, color: 0x1090FF,
-          e: 0.0167, i: 0.0, omega: 114.20, description: "海洋と生命が存在する、太陽系で唯一の惑星。" },
-        { index: 4, name: "Mars", jname: "火星", size: 3396, radius: 227920000, period: 686.980, color: 0xff8030,
-          e: 0.0934, i: 1.85, omega: 49.58, description: "赤い惑星とも呼ばれ、極地には氷が存在する。" },
-        { index: 5, name: "Jupiter", jname: "木星", size: 69000, radius: 778412010, period: 4332.59, color: 0xffd080,
-          e: 0.0484, i: 1.31, omega: 100.56, description: "太陽系最大の惑星で、大きな赤い斑点が特徴的。" },
-        { index: 6, name: "Saturn", jname: "土星", size: 58232, radius: 953707032, period: 10759.22, color: 0xfff0a0,
-          e: 0.0542, i: 2.49, omega: 113.71, description: "美しい環を持つガス惑星。" },
-        { index: 7, name: "Uranus", jname: "天王星", size: 25559, radius: 1919126393, period: 30688.5, color: 0x00f0ff,
-          e: 0.0472, i: 0.77, omega: 74.22, description: "横倒しになって公転する氷の巨人。" },
-        { index: 8, name: "Neptune", jname: "海王星", size: 24622, radius: 4514953000, period: 60182.0, color: 0x90f0ff,
-          e: 0.0086, i: 1.77, omega: 131.72, description: "強風が吹く青い惑星。" },
+        { index: 0, name: "Sun", jname: "太陽", size: 696340, radius: 0, period: 0, color: 0xffff00, e: 0, i: 0, omega: 0, isStar: true, description: "太陽系の中心に輝くG型主系列星。直径は約139万km。太陽系の全質量の約99.86%を占め、その重力で惑星や他の天体を従えている。内部の核融合反応により膨大なエネルギーを放出し、地球の生命活動を支えている。", showOrbit: false },
+        { index: 1, name: "Mercury", jname: "水星", size: 2439, radius: 0.387 * AU, period: 87.969, color: 0x9090a0, e: 0.2056, i: 7.005, omega: 29.12, description: "太陽に最も近い岩石惑星。公転周期は約88日と短いが、自転周期は約59日と長い（太陽日基準では約176日）。大気が非常に薄いため、表面温度の差が極端（昼430℃、夜-180℃）。表面は無数のクレーターで覆われている。", showOrbit: true },
+        { index: 2, name: "Venus", jname: "金星", size: 6051, radius: 0.723 * AU, period: 224.701, color: 0xf0c000, e: 0.0068, i: 3.39, omega: 54.88, description: "地球とほぼ同じ大きさ・質量の岩石惑星。「宵の明星」「明けの明星」として知られる。二酸化炭素を主成分とする厚い大気に覆われ、強力な温室効果により表面温度は約460℃にも達する。自転方向が他の多くの惑星と逆（逆行自転）。", showOrbit: true },
+        { index: 3, name: "Earth", jname: "地球", size: 6356, radius: 1.000 * AU, period: 365.256, color: 0x1090FF, e: 0.0167, i: 0.0, omega: 102.94, description: "太陽系で唯一、表面に液体の水と高度な生命が存在する惑星。窒素と酸素を主成分とする大気、磁場を持つ。プレートテクトニクスによる地殻変動が活発。月という比較的大きな衛星を持つ。", showOrbit: true },
+        { index: 4, name: "Moon", jname: "月", size: 1737, radius: 384400, period: 27.32, color: 0xdddddd, e: 0.0549, i: 5.14, omega: 0, isSatellite: true, parentName: "Earth", description: "地球唯一の自然衛星。直径は約3474kmで地球の約1/4。地球の潮汐、自転軸の安定化などに影響を与える。表面はクレーターや「海」と呼ばれる暗い溶岩平原で覆われている。", showOrbit: false },
+        { index: 5, name: "Mars", jname: "火星", size: 3396, radius: 1.524 * AU, period: 686.980, color: 0xff8030, e: 0.0934, i: 1.85, omega: 286.50, description: "「赤い惑星」と呼ばれる岩石惑星。表面に分布する酸化鉄（赤錆）により赤く見える。かつて液体の水が流れていた痕跡が多数発見されており、現在も極冠や地下に氷の形で水が存在する。薄い二酸化炭素の大気を持つ。フォボスとダイモスという2つの小さな衛星を持つ。", showOrbit: true },
+        { index: 6, name: "Ceres", jname: "ケレス", size: 940/2, radius: 2.766 * AU, period: 1681.6, color: 0xcccccc, e: 0.0758, i: 10.59, omega: 73.65, isDwarfPlanet: true, description: "火星と木星の間の小惑星帯に位置する最大の天体。最初に発見された小惑星（1801年）。自身の重力でほぼ球形を保っているため準惑星に分類される。内部に大量の氷や、塩分を含む水の層を持つ可能性が示唆されている。NASAの探査機ドーンが周回探査を行った。", showOrbit: true },
+        { index: 7, name: "Jupiter", jname: "木星", size: 69911, radius: 5.204 * AU, period: 4332.59, color: 0xffd080, e: 0.0484, i: 1.31, omega: 273.87, description: "太陽系最大のガス惑星で、他の全ての惑星質量の合計の約2.5倍の質量を持つ。主に水素とヘリウムで構成される。約10時間という高速な自転により、赤道付近が膨らんだ扁平な形をしている。大赤斑と呼ばれる巨大な高気圧性の渦や、美しい縞模様（帯と層）が特徴。ガリレオ衛星（イオ、エウロパ、ガニメデ、カリスト）を含む多数の衛星を持つ。", showOrbit: true },
+        { index: 8, name: "Saturn", jname: "土星", size: 58232, radius: 9.582 * AU, period: 10759.22, color: 0xfff0a0, e: 0.0542, i: 2.49, omega: 339.39, description: "壮大で美しい環を持つことで有名なガス惑星。環は無数の氷の粒子や岩石片から構成される。木星に次いで2番目に大きいが、平均密度は水よりも小さい。木星と同様に主に水素とヘリウムからなる。厚い大気を持つタイタンや、氷の火山活動が見られるエンケラドゥスなど、多様な特徴を持つ多数の衛星を持つ。", showOrbit: true },
+        { index: 9, name: "Uranus", jname: "天王星", size: 25362, radius: 19.201 * AU, period: 30688.5, color: 0x00f0ff, e: 0.0472, i: 0.77, omega: 96.99, description: "青緑色に見える巨大氷惑星。大気中のメタンが赤い光を吸収するため、このような色に見える。太陽系の惑星の中で唯一、自転軸が公転面に対してほぼ横倒し（約98度）になっている。そのため、極が太陽に向く期間と赤道が太陽に向く期間が交互に訪れる。比較的暗く薄い環と多数の衛星を持つ。", showOrbit: true },
+        { index: 10, name: "Neptune", jname: "海王星", size: 24622, radius: 30.070 * AU, period: 60182.0, color: 0x90f0ff, e: 0.0086, i: 1.77, omega: 276.34, description: "太陽系で最も外側にある巨大氷惑星。天王星の軌道の乱れから理論的に存在が予測され、1846年に発見された。鮮やかな青色をしており、これは大気中のメタンによるものだが、天王星より色が濃い理由は完全には解明されていない。太陽系最速の風（時速2000km以上）が吹いている。暗く細い環と、逆行軌道を持つ大きな衛星トリトンを含む衛星を持つ。", showOrbit: true },
+        { index: 11, name: "Pluto", jname: "冥王星", size: 1188, radius: 39.482 * AU, period: 90465, color: 0xead4ac, e: 0.2488, i: 17.16, omega: 113.83, isDwarfPlanet: true, description: "エッジワース・カイパーベルトに位置する代表的な準惑星。1930年に発見され、長らく第9惑星とされていたが、2006年のIAU総会で準惑星に分類変更された。軌道離心率が非常に大きく（太陽に最も近いときは海王星の内側に入る）、軌道傾斜角も大きい。窒素を主成分とする薄い大気を持ち、季節によって大きく変化する。巨大な衛星カロンとの共通重心が冥王星の外にある二重天体に近い系をなす。他に4つの小さな衛星を持つ。", showOrbit: true },
+        { index: 12, name: "Haumea", jname: "ハウメア", size: 620, radius: 43.13 * AU, period: 103774, color: 0xf0f0f0, e: 0.195, i: 28.2, omega: 239.5, isDwarfPlanet: true, description: "太陽系外縁天体の一つで準惑星。2008年に命名。非常に速い自転（約3.9時間）のため、極端に引き伸ばされたラグビーボールのような形状をしていると考えられている（三軸径は約1960×1518×996km）。岩石質の核を氷のマントルが覆っていると推定される。環を持つことが確認されており、ヒイアカとナマカという2つの衛星を持つ。", showOrbit: true },
+        { index: 13, name: "Makemake", jname: "マケマケ", size: 715, radius: 45.43 * AU, period: 111840, color: 0xdb8b70, e: 0.161, i: 29.0, omega: 295.3, isDwarfPlanet: true, description: "太陽系外縁天体の一つで準惑星。2008年に命名。冥王星、エリスに次いで、エッジワース・カイパーベルトの中では3番目に大きいとされる天体。表面はメタン、エタン、ソリンなどの氷で覆われ、赤みがかった色をしている。太陽系外縁天体としては比較的明るい。2015年に MK 2 と呼ばれる暗い衛星が発見された。", showOrbit: true },
+        { index: 14, name: "Eris", jname: "エリス", size: 1163, radius: 67.78 * AU, period: 203830, color: 0xbabac0, e: 0.436, i: 44.0, omega: 151.4, isDwarfPlanet: true, description: "太陽系外縁天体の一つで準惑星。2005年に発見され、発見当初は冥王星より大きいと推定されたことから、惑星の定義見直しの直接的なきっかけとなった（現在の推定では冥王星とほぼ同じか僅かに小さいが、質量は大きい）。太陽から非常に遠く（平均68AU、遠日点は約98AU）、公転周期は約558年。軌道傾斜角、離心率ともに非常に大きい散乱円盤天体。ディスノミアという衛星を持つ。", showOrbit: true },
+        { index: 15, name: "Halley", jname: "ハレー彗星", size: 5.5, radius: 17.834 * AU, period: 27759, color: 0xa0d0ff, e: 0.967, i: 162.26, omega: 111.33, isComet: true, description: "約75-76年の周期で地球に接近する最も有名な短周期彗星。古代から観測記録が残る。核は長さ約15km、幅約8kmの不規則な形状（じゃがいも形）をしている。太陽に近づくと表面の氷が昇華してガスや塵を放出し、明るいコマと長い尾を形成する。軌道傾斜角が約162度と非常に大きく、惑星とは逆方向に公転する逆行軌道を持つ。", showOrbit: true },
       ];
 
-      // サイズ指定 (変更なし)
-      const width = window.innerWidth;
-      const height = window.innerHeight;
+      // J2000.0 元期データ
+      const epochData = { Mercury:{M0:174.796,period:87.969}, Venus:{M0:50.416,period:224.701}, Earth:{M0:357.529,period:365.256}, Moon:{M0:134.963,period:27.32}, Mars:{M0:19.373,period:686.98}, Ceres:{M0:98.3,period:1681.6}, Jupiter:{M0:19.895,period:4332.59}, Saturn:{M0:317.021,period:10759.22}, Uranus:{M0:141.05,period:30688.5}, Neptune:{M0:259.157,period:60182}, Pluto:{M0:14.8,period:90465}, Haumea:{M0:202.8,period:103774}, Makemake:{M0:294.1,period:111840}, Eris:{M0:199,period:203830}, Halley:{M0:341.9,period:27759} };
 
-      // ===== シミュレーション設定 (isEarthViewMode 削除) =====
-      let timeScale = 1;
-      let isPaused = false;
-      let isTrackingEarth = false;
-      let isGeocentricMode = false;
-      // ★ isEarthViewMode フラグ削除
-      const trailLength = 100000; // 軌跡の長さを調整
-      let selectedPlanet = null;
-      const trails = {};
+      // --- グローバル変数など ---
+      const width = window.innerWidth; const height = window.innerHeight; const scaleFactor = 0.0000001;
+      let timeScale = 1; let isPaused = false; let isTrackingEarth = false; let isGeocentricMode = false;
+      const trailLength = 100000; let selectedPlanet = null; const trails = {};
+      const KUIPER_BELT_PARTICLES = 20000; const KUIPER_BELT_MIN_RADIUS_AU = 35; const KUIPER_BELT_MAX_RADIUS_AU = 55; const KUIPER_BELT_HEIGHT_AU = 5; const KUIPER_BELT_PARTICLE_SIZE = 0.08; const KUIPER_BELT_COLOR = 0xaaaaaa; let kuiperBeltParticles = null;
+      const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector("#myCanvas"), antialias: true }); renderer.setPixelRatio(window.devicePixelRatio); renderer.setSize(width, height);
+      const labelRenderer = new CSS2DRenderer(); labelRenderer.setSize(width, height); labelRenderer.domElement.style.position = 'absolute'; labelRenderer.domElement.style.top = '0px'; labelRenderer.domElement.style.pointerEvents = 'none'; document.body.appendChild(labelRenderer.domElement);
+      const scene = new THREE.Scene(); const orbits = []; const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 20000); camera.position.set(100, 150, 500); camera.lookAt(new THREE.Vector3(0, 0, 0));
+      const orbitControls = new OrbitControls(camera, renderer.domElement); orbitControls.enableDamping = true; orbitControls.dampingFactor = 0.05; orbitControls.screenSpacePanning = false; orbitControls.maxDistance = 15000;
+      let grid = new THREE.GridHelper(2000, 20, 0x555555, 0x333333); scene.add(grid); let axis = new THREE.AxesHelper(1000); scene.add(axis);
+      const date = new Date(); const raycaster = new THREE.Raycaster(); const pointer = new THREE.Vector2(); const planetObjects = [];
 
-      // レンダラー関連 (変更なし)
-      const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector("#myCanvas"), antialias: true });
-      renderer.setPixelRatio(window.devicePixelRatio);
-      renderer.setSize(width, height);
-      const labelRenderer = new CSS2DRenderer();
-      labelRenderer.setSize(width, height); // サイズを一致させる
-      labelRenderer.domElement.style.position = 'absolute';
-      labelRenderer.domElement.style.top = '0px';
-      labelRenderer.domElement.style.pointerEvents = 'none'; // ラベルが操作を妨げないように
-      document.body.appendChild(labelRenderer.domElement);
-
-      // シーン、軌道配列 (変更なし)
-      const scene = new THREE.Scene();
-      const orbits = [];
-
-      // カメラ (変更なし)
-      const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 5000); // near/far調整
-      camera.position.set(100, 150, 500);
-      camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-      // カメラコントローラー (変更なし)
-      const orbitControls = new OrbitControls(camera, renderer.domElement); // ★レンダラーのdomElementに変更
-      orbitControls.enableDamping = true;
-      orbitControls.dampingFactor = 0.05; // ダンピング係数調整
-      orbitControls.screenSpacePanning = false; // パン操作の挙動変更
-
-      // グリッド、軸 (変更なし)
-      let grid = new THREE.GridHelper(600);
-      scene.add(grid);
-      let axis = new THREE.AxesHelper(300);
-      scene.add(axis);
-
-      // 日付、Raycasting (変更なし)
-      const date = new Date();
-      const raycaster = new THREE.Raycaster();
-      const pointer = new THREE.Vector2();
-      const planetObjects = [];
-
-      // 惑星オブジェクト作成 (変更なし)
+      // --- 初期化 ---
       createPlanetObjects();
+      populatePlanetList();
+      const alight = new THREE.AmbientLight(0xFFFFFF, 0.2); scene.add(alight);
 
-      // 環境光源 (変更なし)
-      const alight = new THREE.AmbientLight(0xFFFFFF, 0.2); // 少し明るく
-      scene.add(alight);
+      // --- イベントリスナー ---
+      window.addEventListener('resize', onWindowResize); window.addEventListener('pointermove', onPointerMove); window.addEventListener('click', onClick);
+      document.getElementById('pauseBtn').addEventListener('click', togglePause); document.getElementById('speedSlider').addEventListener('input', updateSpeed); document.getElementById('dateInput').addEventListener('change', updateDate); document.getElementById('trackEarthBtn').addEventListener('click', toggleEarthTracking);
+      document.getElementById('heliocentricBtn').addEventListener('click', () => toggleModel(false)); document.getElementById('geocentricBtn').addEventListener('click', () => toggleModel(true)); document.getElementById('clearSelectionBtn').addEventListener('click', deselectPlanet);
 
-      // ===== イベントリスナー (earthViewBtn 削除) =====
-      window.addEventListener('resize', onWindowResize);
-      window.addEventListener('pointermove', onPointerMove);
-      window.addEventListener('click', onClick);
-      document.getElementById('pauseBtn').addEventListener('click', togglePause);
-      document.getElementById('speedSlider').addEventListener('input', updateSpeed);
-      document.getElementById('dateInput').addEventListener('change', updateDate);
-      document.getElementById('trackEarthBtn').addEventListener('click', toggleEarthTracking);
-      // ★ earthViewBtn のイベントリスナー削除
-      document.getElementById('heliocentricBtn').addEventListener('click', () => toggleModel(false));
-      document.getElementById('geocentricBtn').addEventListener('click', () => toggleModel(true));
-
-      // シミュレーション開始
       update();
 
-      // --- 関数定義 --- (変更点はコメントで ★ を付与)
+      // --- 関数定義 ---
 
-      // 惑星オブジェクト作成 (表示サイズを displaySize に統一)
+      // カイパーベルト作成
+      function createKuiperBelt() {
+        const vertices = [];
+        const minR = KUIPER_BELT_MIN_RADIUS_AU * AU * scaleFactor;
+        const maxR = KUIPER_BELT_MAX_RADIUS_AU * AU * scaleFactor;
+        const height = KUIPER_BELT_HEIGHT_AU * AU * scaleFactor;
+        for (let i = 0; i < KUIPER_BELT_PARTICLES; i++) {
+            const radius = THREE.MathUtils.randFloat(minR, maxR);
+            const theta = THREE.MathUtils.randFloat(0, Math.PI * 2);
+            const x = radius * Math.cos(theta);
+            const z = radius * Math.sin(theta);
+            const inclinationFactor = (radius - minR) / (maxR - minR);
+            const randomInclination = THREE.MathUtils.randFloat(-0.1, 0.1) * inclinationFactor;
+            const y = THREE.MathUtils.randFloat(-height / 2, height / 2) + radius * Math.sin(randomInclination);
+            vertices.push(x, y, z);
+        }
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        const material = new THREE.PointsMaterial({
+            color: KUIPER_BELT_COLOR, size: KUIPER_BELT_PARTICLE_SIZE, sizeAttenuation: true,
+            transparent: true, opacity: 0.6, depthWrite: false, blending: THREE.AdditiveBlending
+        });
+        kuiperBeltParticles = new THREE.Points(geometry, material);
+        kuiperBeltParticles.name = "KuiperBelt";
+        scene.add(kuiperBeltParticles);
+      }
+
+      // 惑星・天体オブジェクト作成
       function createPlanetObjects() {
-        planetObjects.length = 0;
-        orbits.forEach(orbit => scene.remove(orbit));
-        orbits.length = 0;
-        Object.values(trails).forEach(trail => {
-          if (trail.line) scene.remove(trail.line);
-        });
-        planets.forEach(planet => {
-          if (planet.mesh) {
-            while(planet.mesh.children.length > 0) {
-              planet.mesh.remove(planet.mesh.children[0]);
-            }
-            scene.remove(planet.mesh);
-          }
-          // ★ メッシュ参照をクリア
-          planet.mesh = null;
-        });
+        // --- クリア処理 ---
+        planetObjects.length = 0; orbits.forEach(o=>{if(o){if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();scene.remove(o);}}); orbits.length=0; Object.values(trails).forEach(t=>{if(t.line){if(t.geometry)t.geometry.dispose();if(t.line.material)t.line.material.dispose();scene.remove(t.line);}}); planets.forEach(p=>{if(p.mesh){while(p.mesh.children.length>0)p.mesh.remove(p.mesh.children[0]); scene.remove(p.mesh); if(p.mesh.geometry)p.mesh.geometry.dispose(); if(p.mesh.material){if(Array.isArray(p.mesh.material))p.mesh.material.forEach(m=>m.dispose());else p.mesh.material.dispose();}}p.mesh=null;}); scene.remove(grid); grid=new THREE.GridHelper(2000,20,0x555555,0x333333); scene.add(grid); scene.remove(axis); axis=new THREE.AxesHelper(1000); scene.add(axis); if(kuiperBeltParticles){scene.remove(kuiperBeltParticles);if(kuiperBeltParticles.geometry)kuiperBeltParticles.geometry.dispose();if(kuiperBeltParticles.material)kuiperBeltParticles.material.dispose();kuiperBeltParticles=null;}
 
-        scene.remove(grid);
-        grid = new THREE.GridHelper(800, 20, 0x555555, 0x333333); // グリッド色変更
-        scene.add(grid);
-        scene.remove(axis);
-        axis = new THREE.AxesHelper(400);
-        scene.add(axis);
+        planets.forEach((p, i) => p.index = i);
 
         for (var planet of planets) {
-          if (planet.name === "Sun") {
-            planet.displaySize = 7; // ★ 表示サイズ統一
-            createStarObject(planet);
-          } else {
-            planet.r = planet.radius * 0.0000003;
-            planet.displaySize = 1 + planet.size * 0.00012; // ★ 表示サイズ統一
-            createPlanetMesh(planet);
-            if (isGeocentricMode && planet.name === "Earth") {
-              if(planet.mesh) planet.mesh.position.set(0, 0, 0);
-            }
+          if (planet.isStar) { planet.displaySize=3; createStarObject(planet); }
+          else {
+             if(!planet.isSatellite) { planet.r=planet.radius*scaleFactor; } else { planet.r=0; }
+             if(planet.isComet){planet.displaySize=.6;} else if(planet.isDwarfPlanet){planet.displaySize=Math.max(.15,planet.size*.0001);if(planet.name==="Haumea"||planet.name==="Makemake")planet.displaySize=.1;} else if(planet.isSatellite){planet.displaySize=Math.max(.05,planet.size*.0001);} else {planet.displaySize=Math.max(.1,planet.size*.0001);}
+             createPlanetMesh(planet);
+             if(isGeocentricMode&&planet.name==="Earth"&&planet.mesh)planet.mesh.position.set(0,0,0);
           }
-          if (planet.name !== "Sun" || isGeocentricMode) {
-            initializeTrail(planet);
-          }
+          if(!planet.isStar||isGeocentricMode) initializeTrail(planet);
         }
 
-        // 静的軌道作成
         if (!isGeocentricMode) {
           for (var planet of planets) {
-            if (planet.name !== "Sun") {
-              const orbitLine = createOrbit(planet);
-              // ★ 作成時に userData を設定
-              if (orbitLine) {
-                  orbitLine.userData.planetName = planet.name;
-              }
-            }
+            if (!planet.isStar && !planet.isSatellite) { createOrbit(planet); }
           }
+          createKuiperBelt();
         }
+        updateAllOrbitVisibility();
         updateModelButtonState();
-        // ★ 地球視点モードの処理削除
+        deselectPlanet();
       }
 
-      // 恒星オブジェクト作成 (displaySize使用)
-      function createStarObject(star) {
-        const geometry = new THREE.SphereGeometry(star.displaySize, 32, 16);
-        const material = new THREE.MeshBasicMaterial({
-          color: star.color,
-          emissive: star.color,
-          emissiveIntensity: 1.5 // 少し強く
+      // 天体選択ボタンリスト生成
+      function populatePlanetList() {
+        const planetListDiv = document.getElementById('planetList');
+        planetListDiv.innerHTML = '';
+        planets.forEach(planet => {
+          const listItem = document.createElement('div');
+          listItem.className = 'planet-list-item';
+          const button = document.createElement('button');
+          button.textContent = planet.jname;
+          button.dataset.planetName = planet.name;
+          button.addEventListener('click', () => {
+            const clickedPlanet = planets.find(p => p.name === button.dataset.planetName);
+            if (clickedPlanet) { selectPlanet(clickedPlanet); }
+          });
+          listItem.appendChild(button);
+          if (!planet.isSatellite && !planet.isStar) {
+              const checkbox = document.createElement('input');
+              checkbox.type = 'checkbox';
+              checkbox.checked = planet.showOrbit;
+              checkbox.title = '軌道表示/非表示';
+              checkbox.addEventListener('change', (event) => {
+                  planet.showOrbit = event.target.checked;
+                  updateAllOrbitVisibility();
+              });
+              listItem.appendChild(checkbox);
+          }
+          planetListDiv.appendChild(listItem);
         });
-        const mesh = new THREE.Mesh(geometry, material);
-        mesh.userData.planetData = star;
-        star.mesh = mesh; // ★ メッシュ参照を設定
-        scene.add(mesh);
-        planetObjects.push(mesh);
-
-        if (!isGeocentricMode && mesh) {
-          mesh.position.set(0, 0, 0);
-        }
-
-        const div = document.createElement('div');
-        div.className = 'label';
-        div.textContent = star.jname;
-        const label = new CSS2DObject(div);
-        label.position.set(0, -star.displaySize * 1.2, 0); // 少し離す
-        label.center.set(0.5, 0); // 中央揃え
-        mesh.add(label);
-
-        const light = new THREE.PointLight(0xFFFFFF, 5, 0, 1); // 光源パラメータ調整
-        mesh.add(light);
       }
 
-      // 惑星メッシュ作成 (displaySize使用)
-      function createPlanetMesh(planet) {
-        const geometry = new THREE.SphereGeometry(planet.displaySize, 32, 16);
-        const material = new THREE.MeshStandardMaterial({
-            color: planet.color,
-            roughness: 0.8, // 粗さ調整
-            metalness: 0.1 // 金属感調整
-        });
-        const mesh = new THREE.Mesh(geometry, material);
-        mesh.userData.planetData = planet;
-        planet.mesh = mesh; // ★ メッシュ参照を設定
-        scene.add(mesh);
-        planetObjects.push(mesh);
+      // 恒星オブジェクト作成
+      function createStarObject(star){const g=new THREE.SphereGeometry(star.displaySize,32,16);const m=new THREE.MeshBasicMaterial({color:star.color,emissive:star.color,emissiveIntensity:1.5});const mesh=new THREE.Mesh(g,m);mesh.userData.planetData=star;star.mesh=mesh;scene.add(mesh);planetObjects.push(mesh);if(!isGeocentricMode&&mesh)mesh.position.set(0,0,0);const div=document.createElement('div');div.className='label';div.textContent=star.jname;const label=new CSS2DObject(div);label.position.set(0,-star.displaySize*1.2,0);label.center.set(.5,0);mesh.add(label);const light=new THREE.PointLight(0xFFFFFF,5,0,1);mesh.add(light);}
+      // 惑星・衛星等メッシュ作成
+      function createPlanetMesh(planet){const g=new THREE.SphereGeometry(planet.displaySize,32,16);let mp={color:planet.color,roughness:.8,metalness:.1};if(planet.isComet){mp.roughness=.7;mp.metalness=0;}else if(planet.isDwarfPlanet){mp.roughness=.9;mp.metalness=.05;}else if(planet.isSatellite){mp.roughness=.9;mp.metalness=0;}const m=new THREE.MeshStandardMaterial(mp);const mesh=new THREE.Mesh(g,m);mesh.userData.planetData=planet;planet.mesh=mesh;scene.add(mesh);planetObjects.push(mesh);const div=document.createElement('div');div.className='label';div.textContent=planet.jname;const label=new CSS2DObject(div);label.position.set(0,-planet.displaySize*1.3,0);label.center.set(.5,0);mesh.add(label);}
+      // 軌跡初期化
+      function initializeTrail(o){if(trails[o.name]&&trails[o.name].line){if(trails[o.name].geometry)trails[o.name].geometry.dispose();if(trails[o.name].line.material)trails[o.name].line.material.dispose();scene.remove(trails[o.name].line);}trails[o.name]={positions:[],geometry:new THREE.BufferGeometry(),line:null,color:o.color||0xffffff};const m=new THREE.LineBasicMaterial({color:trails[o.name].color,opacity:.6,transparent:true});trails[o.name].line=new THREE.Line(trails[o.name].geometry,m);trails[o.name].line.frustumCulled=false;scene.add(trails[o.name].line);}
+      // 軌跡点追加
+      function addTrailPoint(n,p){if(!trails[n]||!p)return;trails[n].positions.push(p.clone());if(trails[n].positions.length>trailLength)trails[n].positions.shift();updateTrailGeometry(n);}
+      // 軌跡ジオメトリ更新
+      function updateTrailGeometry(n){if(!trails[n]||trails[n].positions.length<2)return;if(trails[n].geometry)trails[n].geometry.dispose();trails[n].geometry=new THREE.BufferGeometry().setFromPoints(trails[n].positions);trails[n].line.geometry=trails[n].geometry;trails[n].geometry.computeBoundingSphere();}
+      // 静的軌道生成
+      function createOrbit(planet){let s=128;if(planet.e>.2)s=256;if(planet.e>.9)s=512;if(planet.radius>20*AU)s=Math.max(s,192);if(planet.i>15)s=Math.max(s,192);const p=[];const a=planet.r;const e=planet.e;for(let i=0;i<=s;i++){const E=(i/s)*Math.PI*2;const xE=a*(Math.cos(E)-e);const zE=a*Math.sqrt(1-e*e)*Math.sin(E);const{x:x3d,y:y3d,z:z3d}=applyOrbitalElements(xE,0,zE,planet.i,planet.omega);p.push(new THREE.Vector3(x3d,y3d,z3d));}const g=new THREE.BufferGeometry().setFromPoints(p);const m=new THREE.LineBasicMaterial({color:new THREE.Color(planet.color).multiplyScalar(.4),opacity:.7,transparent:true});const el=new THREE.Line(g,m);el.userData.planetName=planet.name;el.visible=!isGeocentricMode&&planet.showOrbit;scene.add(el);orbits.push(el);return el;}
+      // 軌道要素適用
+      function applyOrbitalElements(x,y,z,i,w){const ir=i*Math.PI/180;const wr=w*Math.PI/180;const x1=x*Math.cos(wr)-z*Math.sin(wr);const z1=x*Math.sin(wr)+z*Math.cos(wr);const y1=y;const x2=x1;const y2=y1*Math.cos(ir)+z1*Math.sin(ir);const z2=-y1*Math.sin(ir)+z1*Math.cos(ir);return{x:x2,y:y2,z:z2};}
 
-        const div = document.createElement('div');
-        div.className = 'label';
-        div.textContent = planet.jname;
-        const label = new CSS2DObject(div);
-        label.position.set(0, -planet.displaySize * 1.3, 0); // 少し離す
-        label.center.set(0.5, 0); // 中央揃え
-        mesh.add(label);
-      }
+      // メインループ
+      function update(){const e=planets.find(p=>p.name==="Earth");if(!isPaused){date.setHours(date.getHours()+timeScale);document.getElementById("date").innerHTML=date.toLocaleString();document.getElementById('dateInput').value=formatDateForInput(date);updateAllPlanetPositions();}if(isTrackingEarth&&e&&e.mesh)orbitControls.target.copy(e.mesh.position);orbitControls.update();renderer.render(scene,camera);labelRenderer.render(scene,camera);requestAnimationFrame(update);}
+      // 全天体位置更新
+      function updateAllPlanetPositions(){if(!isGeocentricMode){const s=planets.find(p=>p.name==="Sun");if(s&&s.mesh)s.mesh.position.set(0,0,0);for(var p of planets){if(!p.isSatellite&&!p.isStar&&p.mesh){updatePlanetPosition(p,date);addTrailPoint(p.name,p.mesh.position);}}}else{const e=planets.find(p=>p.name==="Earth");if(!e||!e.mesh)return;e.mesh.position.set(0,0,0);addTrailPoint(e.name,e.mesh.position);for(var p of planets){if(p.name==="Earth"||!p.mesh||p.isSatellite)continue;if(p.isStar)updateSunGeocentricPosition(p,date);else updateGeocentricPosition(p,date);if(p.mesh)addTrailPoint(p.name,p.mesh.position);}}for(var s of planets){if(s.isSatellite&&s.mesh)updateSatellitePosition(s,date);}}
+      // 惑星位置更新(地動説)
+      function updatePlanetPosition(p,d){const m=calculatePlanetAngles(d,p.name);const e=p.e;let E=m;const it=(e>.9)?15:8;for(let i=0;i<it;i++){const dE=(E-e*Math.sin(E)-m)/(1-e*Math.cos(E));E-=dE;if(Math.abs(dE)<1e-9)break;}const t=2*Math.atan2(Math.sqrt(1+e)*Math.sin(E/2),Math.sqrt(1-e)*Math.cos(E/2));const r=p.r*(1-e*Math.cos(E));const xo=r*Math.cos(t);const zo=r*Math.sin(t);const{x:fx,y:fy,z:fz}=applyOrbitalElements(xo,0,zo,p.i,p.omega);p.mesh.position.set(fx,fy,fz);let rs=1;if(p.isComet)rs=.1;if(p.isDwarfPlanet)rs=.5;p.mesh.rotation.y+=.005*timeScale*rs;}
+      // 衛星位置更新
+      function updateSatellitePosition(s,d){const parent=planets.find(p=>p.name===s.parentName);if(!parent||!parent.mesh)return;const pp=parent.mesh.position.clone();const m=calculatePlanetAngles(d,s.name);const e=s.e;let E=m;for(let i=0;i<8;i++){const dE=(E-e*Math.sin(E)-m)/(1-e*Math.cos(E));E-=dE;if(Math.abs(dE)<1e-9)break;}const t=2*Math.atan2(Math.sqrt(1+e)*Math.sin(E/2),Math.sqrt(1-e)*Math.cos(E/2));const eds=planets.find(p=>p.name==='Earth')?.displaySize||1;const mdor=5;const mdr=eds*mdor;const r=mdr*(1-e*Math.cos(E));const xo=r*Math.cos(t);const zo=r*Math.sin(t);const{x:rx,y:ry,z:rz}=applyOrbitalElements(xo,0,zo,s.i,s.omega);const rp=new THREE.Vector3(rx,ry,rz);s.mesh.position.copy(pp).add(rp);s.mesh.rotation.y+=.01*timeScale;addTrailPoint(s.name,s.mesh.position);}
+      // 天体位置更新(天動説)
+      function updateGeocentricPosition(p,d){const earth=planets.find(p=>p.name==="Earth");if(!earth||!earth.mesh)return;updatePlanetPosition(earth,d);const eph=earth.mesh.position.clone();updatePlanetPosition(p,d);const pph=p.mesh.position.clone();const rp=pph.sub(eph);p.mesh.position.copy(rp);earth.mesh.position.set(0,0,0);let rs=1;if(p.isComet)rs=.1;if(p.isDwarfPlanet)rs=.5;p.mesh.rotation.y+=.005*timeScale*rs;}
+      // 太陽位置更新(天動説)
+      function updateSunGeocentricPosition(s,d){const earth=planets.find(p=>p.name==="Earth");if(!earth||!earth.mesh||!s||!s.mesh)return;updatePlanetPosition(earth,d);const eph=earth.mesh.position.clone();s.mesh.position.copy(eph).negate();earth.mesh.position.set(0,0,0);}
+      // 角度計算
+      function calculatePlanetAngles(d,n){const pd=planets.find(p=>p.name===n);if(!pd||pd.isStar)return 0;const data=epochData[n];if(!data){console.warn("Epoch data not found for:",n);return 0;}const jd=d.getTime()/864e5+2440587.5;const j2k=2451545;const dse=jd-j2k;const mmr=(2*Math.PI)/data.period;const m0r=data.M0*Math.PI/180;let ma=m0r+mmr*dse;ma%=(2*Math.PI);if(ma<0)ma+=2*Math.PI;return ma;}
 
-      // 軌跡初期化、追加、更新 (変更なし)
-      function initializeTrail(object) {
-        if (trails[object.name] && trails[object.name].line) {
-          scene.remove(trails[object.name].line);
-        }
-        trails[object.name] = {
-          positions: [],
-          geometry: new THREE.BufferGeometry(),
-          line: null,
-          color: object.color || 0xffffff
-        };
-        const material = new THREE.LineBasicMaterial({
-          color: trails[object.name].color,
-          opacity: 0.6, // 透明度調整
-          transparent: true
-        });
-        trails[object.name].line = new THREE.Line(trails[object.name].geometry, material);
-        trails[object.name].line.frustumCulled = false; // カリング無効化
-        scene.add(trails[object.name].line);
-      }
-      function addTrailPoint(name, position) {
-        if (!trails[name] || !position) return;
-        trails[name].positions.push(position.clone());
-        if (trails[name].positions.length > trailLength) {
-          trails[name].positions.shift();
-        }
-        updateTrailGeometry(name);
-      }
-      function updateTrailGeometry(name) {
-        if (!trails[name] || trails[name].positions.length < 2) return;
-        trails[name].geometry.setFromPoints(trails[name].positions);
-        trails[name].geometry.attributes.position.needsUpdate = true;
-        trails[name].geometry.computeBoundingSphere(); // バウンディングスフィア更新
-      }
+      // --- 選択処理 & 表示制御 ---
+      function selectPlanet(p){if(selectedPlanet&&selectedPlanet.name===p.name)deselectPlanet();else{selectedPlanet=p;showPlanetInfo(p);updateOrbitDisplay();updateSelectedButtonState(p.name);}}
+      function deselectPlanet(){selectedPlanet=null;hidePlanetInfo();resetOrbitDisplay();updateSelectedButtonState(null);}
+      function updateSelectedButtonState(sn){const items=document.querySelectorAll('#planetList .planet-list-item');items.forEach(item=>{const button=item.querySelector('button');if(button){if(button.dataset.planetName===sn)button.classList.add('selected-button');else button.classList.remove('selected-button');}});}
 
-      // 静的軌道生成 (userData.planetName を追加)
-      function createOrbit(planet) {
-        const segments = 128;
-        const points = [];
-        const a = planet.r;
-        const e = planet.e;
-        // 太陽焦点の楕円を計算
-        for (let i = 0; i <= segments; i++) {
-            const meanAnomaly = (i / segments) * Math.PI * 2;
-            // ケプラー方程式を解くのは複雑なので、離心近点角 E ≈ M + e * sin(M) で近似
-            const E = meanAnomaly + e * Math.sin(meanAnomaly);
-            // 真近点角ν (theta) を計算
-            const cosTheta = (Math.cos(E) - e) / (1 - e * Math.cos(E));
-            const sinTheta = (Math.sqrt(1 - e * e) * Math.sin(E)) / (1 - e * Math.cos(E));
-            const theta = Math.atan2(sinTheta, cosTheta);
-
-            const r = a * (1 - e * e) / (1 + e * Math.cos(theta));
-            const x = r * Math.cos(theta);
-            const z = r * Math.sin(theta);
-
-            // ★ 近日点引数 ω (omega) と軌道傾斜角 i を適用
-            const { x: x3d, y: y3d, z: z3d } = applyOrbitalElements(x, 0, z, planet.i, planet.omega);
-            points.push(new THREE.Vector3(x3d, y3d, z3d));
-        }
-
-        const geometry = new THREE.BufferGeometry().setFromPoints(points);
-        const material = new THREE.LineBasicMaterial({
-          color: new THREE.Color(planet.color).multiplyScalar(0.4), // 色調整
-          opacity: 0.7, // 透明度調整
-          transparent: true
-        });
-        const ellipse = new THREE.Line(geometry, material);
-        ellipse.userData.planetName = planet.name; // ★ 惑星名を格納
-        scene.add(ellipse);
-        orbits.push(ellipse);
-        return ellipse;
-      }
-
-      // 軌道要素適用関数 (変更なし)
-      function applyOrbitalElements(x, y, z, inclination, argPeriapsis) {
-        const iRad = inclination * Math.PI / 180;
-        const omegaRad = argPeriapsis * Math.PI / 180; // argPeriapsis は近日点引数 ω (小文字)
-
-        // 簡易版: omega を昇交点黄経のように扱ってみる (仮)
-        const x1 = x * Math.cos(omegaRad) - z * Math.sin(omegaRad);
-        const z1 = x * Math.sin(omegaRad) + z * Math.cos(omegaRad);
-        const y1 = y; // y は 0 のまま
-
-        // 傾斜角 i で回転 (新しい X 軸周り)
-        const x2 = x1;
-        const y2 = y1 * Math.cos(iRad) + z1 * Math.sin(iRad); // y は元々0なので z1*sin(i)
-        const z2 = -y1 * Math.sin(iRad) + z1 * Math.cos(iRad); // y は元々0なので z1*cos(i)
-
-        return { x: x2, y: y2, z: z2 };
-      }
-
-      // ===== update 関数 (isEarthViewMode 削除) =====
-      function update() {
-        const earth = planets.find(p => p.name === "Earth");
-
-        if (!isPaused) {
-          date.setHours(date.getHours() + timeScale);
-          document.getElementById("date").innerHTML = date.toLocaleString();
-          document.getElementById('dateInput').value = formatDateForInput(date);
-          updateAllPlanetPositions();
-        }
-
-        // ★ 地球視点モードのカメラ制御 削除
-        if (isTrackingEarth && earth && earth.mesh) {
-          // 地球追跡モード (lookAt は OrbitControls が行うので不要)
-          orbitControls.target.copy(earth.mesh.position);
-        }
-
-        orbitControls.update();
-        renderer.render(scene, camera);
-        labelRenderer.render(scene, camera);
-        requestAnimationFrame(update);
-      }
-
-      // 全惑星位置更新 (変更なし)
-      function updateAllPlanetPositions() {
-        if (!isGeocentricMode) {
-          const sun = planets.find(p => p.name === "Sun");
-          if(sun && sun.mesh) sun.mesh.position.set(0, 0, 0);
-
-          for (var planet of planets) {
-            if (planet.name !== "Sun" && planet.mesh) {
-              updatePlanetPosition(planet, date);
-              addTrailPoint(planet.name, planet.mesh.position);
-            }
-          }
-        } else {
-          const earth = planets.find(p => p.name === "Earth");
-          if(!earth || !earth.mesh) return;
-
-          const earthAngle = calculatePlanetAngles(date, "Earth");
-          earth.mesh.position.set(0, 0, 0);
-          addTrailPoint(earth.name, earth.mesh.position);
-
-          for (var planet of planets) {
-            if (planet.name === "Earth" || !planet.mesh) continue;
-
-            if (planet.name === "Sun") {
-              updateSunGeocentricPosition(planet, date, earthAngle);
-            } else {
-              updateGeocentricPosition(planet, date, earthAngle);
-            }
-             if(planet.mesh) addTrailPoint(planet.name, planet.mesh.position);
-          }
-        }
-         // ★ 選択惑星に応じて軌跡表示を更新 (毎回呼ぶ)
-        updateOrbitDisplay();
-      }
-
-      // 惑星位置更新（地動説） (近日点引数考慮を改善)
-      function updatePlanetPosition(planet, date) {
-        const meanAnomaly = calculatePlanetAngles(date, planet.name); // 平均近点角 (M) を得る
-        const e = planet.e;
-        // ケプラー方程式 M = E - e * sin(E) を解いて離心近点角 E を得る (反復法)
-        let E = meanAnomaly; // 初期値
-        for (let i = 0; i < 5; i++) { // 5回程度の反復で十分な精度
-            E = E - (E - e * Math.sin(E) - meanAnomaly) / (1 - e * Math.cos(E));
-        }
-
-        // 真近点角 ν (theta) を計算
-        const cosTheta = (Math.cos(E) - e) / (1 - e * Math.cos(E));
-        const sinTheta = (Math.sqrt(1 - e * e) * Math.sin(E)) / (1 - e * Math.cos(E));
-        const theta = Math.atan2(sinTheta, cosTheta); // 真近点角
-
-        // 太陽からの距離 r を計算
-        const r = planet.r * (1 - e * e) / (1 + e * Math.cos(theta)); // planet.r はデフォルメ軌道半径 a
-
-        // 軌道面上の座標 (近日点が+X方向になる座標系)
-        const xOrb = r * Math.cos(theta);
-        const zOrb = r * Math.sin(theta);
-
-        // ★ 近日点引数 ω (omega) と軌道傾斜角 i を適用して黄道座標系へ
-        const { x: finalX, y: finalY, z: finalZ } =
-            applyOrbitalElements(xOrb, 0, zOrb, planet.i, planet.omega);
-
-        planet.mesh.position.set(finalX, finalY, finalZ);
-        planet.mesh.rotation.y += 0.005 * timeScale; // 自転速度調整
-      }
-
-      // 惑星位置更新（天動説）(地動説の計算結果を利用)
-      function updateGeocentricPosition(planet, date, earthAngle) { // earthAngle は使わない
-          // 1. 地球の太陽中心座標を計算
-          const earth = planets.find(p => p.name === "Earth");
-          if (!earth || !earth.mesh) return;
-          // 地動説と同じ方法で地球の位置を計算 (内部で計算させる)
-          updatePlanetPosition(earth, date); // これで earth.mesh.position が更新される
-          const earthPosHeliocentric = earth.mesh.position.clone();
-
-          // 2. 対象惑星の太陽中心座標を計算
-          updatePlanetPosition(planet, date); // これで planet.mesh.position が更新される
-          const planetPosHeliocentric = planet.mesh.position.clone();
-
-          // 3. 地球中心の相対座標を計算
-          const relativePos = planetPosHeliocentric.sub(earthPosHeliocentric);
-          planet.mesh.position.copy(relativePos);
-
-          // 地球は原点に戻す
-          earth.mesh.position.set(0,0,0);
-
-          planet.mesh.rotation.y += 0.005 * timeScale;
-      }
-
-      // 太陽位置更新（天動説）(地球の位置の逆ベクトル)
-      function updateSunGeocentricPosition(sun, date, earthAngle) { // earthAngle は使わない
-          const earth = planets.find(p => p.name === "Earth");
-          if (!earth || !earth.mesh || !sun || !sun.mesh) return;
-          // 地球の太陽中心座標を計算
-          updatePlanetPosition(earth, date);
-          const earthPosHeliocentric = earth.mesh.position.clone();
-          // 太陽の位置は地球の位置の逆ベクトル
-          sun.mesh.position.copy(earthPosHeliocentric).negate();
-          // 地球は原点に戻す
-          earth.mesh.position.set(0,0,0);
-      }
-
-
-      // 惑星の角度計算 (平均近点角 M を返すように変更)
-      function calculatePlanetAngles(date, name) {
-          // ★ 平均近点角 M (Mean Anomaly) を計算して返す
-          const planetData = planets.find(p => p.name === name);
-          if (!planetData || planetData.isStar) return 0; // 太陽やデータ不備は 0
-
-          const epochData = { // J2000.0 基準データ (仮: 平均経度 L0, 近日点経度 ϖ0)
-              Mercury: { L0: 252.25, w0: 77.46, period: 87.969 },
-              Venus:   { L0: 181.98, w0: 131.53,period: 224.701 },
-              Earth:   { L0: 100.46, w0: 102.95,period: 365.256 },
-              Mars:    { L0: 355.43, w0: 336.04,period: 686.980 },
-              Jupiter: { L0: 34.35,  w0: 14.75, period: 4332.59 },
-              Saturn:  { L0: 50.08,  w0: 92.43, period: 10759.22 },
-              Uranus:  { L0: 314.06, w0: 170.96,period: 30688.5 },
-              Neptune: { L0: 304.35, w0: 44.97, period: 60182.0 },
-          };
-          const data = epochData[name];
-          if (!data) return 0;
-
-          const julianDate = date.getTime() / 86400000 + 2440587.5;
-          const J2000 = 2451545.0;
-          const daysSinceEpoch = julianDate - J2000;
-          const meanMotionRad = (2 * Math.PI) / (data.period); // 平均角速度 (rad/日)
-
-          // 平均経度 L = L0 + n * d
-          const meanLongitude = (data.L0 * Math.PI / 180 + meanMotionRad * daysSinceEpoch);
-          // 近日点黄経 ϖ (ほぼ定数として扱う簡易計算)
-          const perihelionLongitude = data.w0 * Math.PI / 180;
-          // 平均近点角 M = L - ϖ
-          let meanAnomaly = meanLongitude - perihelionLongitude;
-          // 0 ～ 2π の範囲に正規化
-          meanAnomaly = meanAnomaly % (2 * Math.PI);
-          if (meanAnomaly < 0) meanAnomaly += 2 * Math.PI;
-
-          return meanAnomaly; // 平均近点角 M (ラジアン) を返す
-      }
-
-      // ===== モード切替（天動説/地動説）(地球視点解除削除) =====
-      function toggleModel(geocentric) {
-        if (isGeocentricMode === geocentric) return;
-        isGeocentricMode = geocentric;
-
-        // ★ 地球視点モード解除 削除
-
-        if (isTrackingEarth) {
-          isTrackingEarth = false;
-          document.getElementById('trackEarthBtn').textContent = '地球を追跡';
-        }
-
-        selectedPlanet = null;
-        hidePlanetInfo();
-        createPlanetObjects(); // オブジェクト再作成
-        resetCameraAndControls(); // カメラリセット関数呼び出し
-        document.getElementById('modeTitle').textContent =
-          isGeocentricMode ? '天動説モード（地球中心）' : '地動説モード（太陽中心）';
-        updateModelButtonState();
-      }
-
-      // モードボタン状態更新 (変更なし)
-      function updateModelButtonState() {
-        const helioBtn = document.getElementById('heliocentricBtn');
-        const geoBtn = document.getElementById('geocentricBtn');
-        if (isGeocentricMode) {
-          geoBtn.classList.add('selected');
-          helioBtn.classList.remove('selected');
-        } else {
-          helioBtn.classList.add('selected');
-          geoBtn.classList.remove('selected');
-        }
-      }
-
-      // ===== 地球追跡モード切り替え (地球視点解除削除) =====
-      function toggleEarthTracking() {
-        isTrackingEarth = !isTrackingEarth;
-        const trackBtn = document.getElementById('trackEarthBtn');
-        trackBtn.textContent = isTrackingEarth ? '追跡解除' : '地球追跡';
-
-        if (isTrackingEarth) {
-          // ★ 地球視点モード解除 削除
-          const earth = planets.find(p => p.name === "Earth");
-          if (earth && earth.mesh) {
-            orbitControls.target.copy(earth.mesh.position);
-          }
-        } else {
-          // 追跡解除時はターゲットを原点に戻す
-          orbitControls.target.set(0, 0, 0);
-        }
-      }
-
-      // ===== 地球視点関連関数 削除 =====
-      // ★ toggleEarthView 関数削除
-      // ★ activateEarthView 関数削除
-      // ★ deactivateEarthView 関数削除
-      // ★ updateEarthVisibility 関数削除
-
-      // ===== カメラとコントローラーをリセットする関数 (変更なし) =====
-      function resetCameraAndControls() {
-          camera.position.set(100, 150, 500);
-          orbitControls.target.set(0, 0, 0);
-          camera.lookAt(orbitControls.target);
-          // カメラコントローラーの設定もリセット（必要なら）
-          orbitControls.enablePan = true;
-          orbitControls.minDistance = 1;
-          orbitControls.maxDistance = 4000;
-          orbitControls.zoomSpeed = 1.0;
-      }
-
-
-      // ウィンドウリサイズ (変更なし)
-      function onWindowResize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        labelRenderer.setSize(window.innerWidth, window.innerHeight);
-      }
-
-      // マウス移動 (変更なし)
-      function onPointerMove(event) {
-        pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-        pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
-      }
-
-      // クリック処理 (地球視点モードの制限削除)
-      function onClick(event) {
-         // ★ コントロールパネル上のクリックは無視
-         const controlPanelRect = document.getElementById('controlPanel').getBoundingClientRect();
-         const infoPanelRect = document.getElementById('infoPanel').getBoundingClientRect();
-         const dateRect = document.getElementById('date').getBoundingClientRect();
-
-         if (event.clientX >= controlPanelRect.left && event.clientX <= controlPanelRect.right &&
-             event.clientY >= controlPanelRect.top && event.clientY <= controlPanelRect.bottom) {
-             return;
-         }
-          if (infoPanel.style.display !== 'none' &&
-              event.clientX >= infoPanelRect.left && event.clientX <= infoPanelRect.right &&
-              event.clientY >= infoPanelRect.top && event.clientY <= infoPanelRect.bottom) {
-              return;
-          }
-          if (event.clientX >= dateRect.left && event.clientX <= dateRect.right &&
-              event.clientY >= dateRect.top && event.clientY <= dateRect.bottom) {
-              return;
-          }
-
-
-        raycaster.setFromCamera(pointer, camera);
-        const intersects = raycaster.intersectObjects(planetObjects);
-
-        if (intersects.length > 0) {
-          // ★ 地球視点モードの制限 削除
-
-          const object = intersects[0].object;
-          if (object.userData.planetData) {
-            const planet = object.userData.planetData;
-            if (selectedPlanet && selectedPlanet.name === planet.name) {
-              selectedPlanet = null;
-              hidePlanetInfo();
-              resetOrbitDisplay();
-            } else {
-              selectedPlanet = planet;
-              showPlanetInfo(planet);
-              updateOrbitDisplay();
-            }
-          }
-        } else {
-          // 背景クリック時も選択解除
-          selectedPlanet = null;
-          hidePlanetInfo();
-          resetOrbitDisplay();
-        }
-      }
-
-      // 選択惑星の軌道/軌跡表示 (地球視点モード関連削除)
-      function updateOrbitDisplay() {
-          // 静的軌道 (地動説モードのみ)
+      // 全ての静的軌道の表示/非表示を更新
+      function updateAllOrbitVisibility() {
           orbits.forEach(orbitLine => {
               if (orbitLine && orbitLine.userData.planetName) {
-                  // ★ 選択されていなければ非表示、選択されていれば表示
-                  orbitLine.visible = !isGeocentricMode && selectedPlanet && orbitLine.userData.planetName === selectedPlanet.name;
-              } else {
-                  orbitLine.visible = false; // データなければ非表示
-              }
+                  const planet = planets.find(p => p.name === orbitLine.userData.planetName);
+                  if (planet) { orbitLine.visible = !isGeocentricMode && planet.showOrbit; }
+                  else { orbitLine.visible = false; }
+              } else if (orbitLine) { orbitLine.visible = false; }
           });
+      }
 
-          // 動的軌跡 (両モード)
+      // ★ 選択天体の「軌跡」表示を更新 (地動説では表示しない)
+      function updateOrbitDisplay() {
           for (const name in trails) {
               if (trails[name] && trails[name].line) {
-                   const planetData = planets.find(p => p.name === name);
-                   // ★ 選択されていなければ非表示、選択されていれば表示 (天動説の太陽も考慮)
-                   const showTrail = selectedPlanet &&
-                                     (name === selectedPlanet.name ||
-                                     (isGeocentricMode && name === "Sun" && selectedPlanet.name === "Sun")); // 天動説で太陽選択時
-
-                   // 地動説の太陽軌跡は存在しないので非表示
-                   trails[name].line.visible = (!isGeocentricMode && name === 'Sun') ? false : showTrail;
-
-                   // ★ 地球視点モードのコメント削除
+                   const showTrail = selectedPlanet && name === selectedPlanet.name;
+                   // 地動説モードでは常に非表示、天動説モードでは選択時に表示（太陽除く）
+                   trails[name].line.visible = isGeocentricMode && showTrail && name !== 'Sun';
               }
           }
-
-          // 選択解除時は resetOrbitDisplay で全表示
-          if (!selectedPlanet) {
-               resetOrbitDisplay();
-          }
+          // 静的軌道は updateAllOrbitVisibility が担当
       }
 
-      // 全軌道/軌跡表示リセット (地球視点モード関連削除)
+      // ★ 全軌跡表示リセット (地動説では表示しない)
       function resetOrbitDisplay() {
-        // 静的軌道 (地動説モード)
-        if (!isGeocentricMode) {
-          orbits.forEach(orbitLine => {
-             if (orbitLine) orbitLine.visible = true;
-          });
-        }
-        // 動的軌跡 (両モード)
         for (const name in trails) {
           if (trails[name] && trails[name].line) {
-            // 地動説の太陽は軌跡がないので常にfalse
-            trails[name].line.visible = (!isGeocentricMode && name === 'Sun') ? false : true;
+            // 地動説モードでは非表示、天動説モードでは（太陽以外）表示
+            trails[name].line.visible = isGeocentricMode && name !== 'Sun';
           }
         }
+        // 静的軌道は updateAllOrbitVisibility が担当
       }
 
-      // 惑星情報表示 (表示サイズ等調整)
-      function showPlanetInfo(planet) {
-        const infoPanel = document.getElementById('infoPanel');
-        infoPanel.style.display = 'block';
-        let html = `<h3>${planet.jname} (${planet.name})</h3>`;
+      // 天体情報表示
+      function showPlanetInfo(p){const ip=document.getElementById('infoPanel');ip.style.display='block';let h=`<h3>${p.jname} (${p.name})</h3>`;if(p.isStar)h+='<p>分類: 恒星</p>';else if(p.isSatellite)h+=`<p>分類: 衛星 (親: ${p.parentName})</p>`;else if(p.isDwarfPlanet)h+='<p>分類: 準惑星</p>';else if(p.isComet)h+='<p>分類: 彗星</p>';else h+='<p>分類: 惑星</p>';h+=`<p>平均半径: ${p.size.toLocaleString()} km</p><p>表示サイズ: ${p.displaySize.toFixed(2)}</p>`;if(!p.isStar){if(!p.isSatellite){const rAU=(p.radius/AU).toFixed(3);h+=`<p>軌道長半径(a): ${rAU} AU (${p.radius.toLocaleString()} km)</p>`;}else{h+=`<p>親天体からの平均距離: ${p.radius.toLocaleString()} km</p>`;const eds=planets.find(pl=>pl.name==='Earth')?.displaySize||1;h+=`<p>表示上の軌道半径係数: ${(eds*5/p.displaySize).toFixed(1)} (対表示半径)</p>`;}h+=`<p>公転周期: ${p.period.toFixed(1)} 日 (${(p.period/365.25).toFixed(2)} 年)</p><p>離心率(e): ${p.e.toFixed(4)}</p><p>軌道傾斜角(i): ${p.i.toFixed(2)}° ${p.isSatellite?'(対黄道面)':''}</p><p>近日点引数(ω): ${p.omega.toFixed(2)}°</p>`;}h+=`<p style="font-size:smaller;margin-top:8px;line-height:1.4;">${p.description||''}</p><p style="margin-top:10px;"><small>他をクリックor再度選択or<br>「選択解除」ボタンで解除</small></p>`;ip.innerHTML=h;}
+      // 天体情報非表示
+      function hidePlanetInfo(){document.getElementById('infoPanel').style.display='none';}
 
-        if (planet.isStar) {
-             html += `<p>分類: 恒星</p>`;
-        } else {
-            html += `<p>分類: 惑星</p>`;
-        }
-
-        html += `<p>表示サイズ: ${planet.displaySize.toFixed(2)}</p>`; // 表示サイズ追加
-
-        if (!planet.isStar) {
-            html += `<p>軌道半径 (表示): ${planet.r.toFixed(2)}</p>`; // デフォルメ半径
-            html += `<p>公転周期: ${planet.period} 日</p>`;
-            html += `<p>離心率: ${planet.e.toFixed(4)}</p>`;
-            html += `<p>軌道傾斜角: ${planet.i.toFixed(2)}°</p>`;
-            html += `<p>近日点引数(ω): ${planet.omega.toFixed(2)}°</p>`; // データに入っている値
-        }
-         html += `<p style="font-size: smaller; margin-top: 5px;">${planet.description}</p>`;
-         html += `<p style="margin-top:10px;"><small>クリックで選択解除</small></p>`;
-        infoPanel.innerHTML = html;
-      }
-
-      // 惑星情報非表示 (変更なし)
-      function hidePlanetInfo() {
-        document.getElementById('infoPanel').style.display = 'none';
-      }
-
-      // 一時停止/再開 (変更なし)
-      function togglePause() {
-        isPaused = !isPaused;
-        document.getElementById('pauseBtn').textContent = isPaused ? '再開' : '一時停止';
-      }
-
-      // スピード調整 (変更なし)
-      function updateSpeed() {
-        timeScale = parseFloat(document.getElementById('speedSlider').value);
-        document.getElementById('speedValue').textContent = timeScale.toFixed(1);
-      }
-
-      // 日付更新 (変更なし)
-      function updateDate() {
-        const newDateStr = document.getElementById('dateInput').value;
-        const newDate = new Date(newDateStr);
-        if (!isNaN(newDate.getTime())) {
-          date.setTime(newDate.getTime());
-          // 強制的に位置を再計算
-           updateAllPlanetPositions();
-           if(isPaused) { // 一時停止中なら手動でレンダリング
-               renderer.render(scene, camera);
-               labelRenderer.render(scene, camera);
-           }
-        }
-      }
-
-      // 日付フォーマット (変更なし)
-      function formatDateForInput(date) {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        return `${year}-${month}-${day}T${hours}:${minutes}`;
-      }
+      // --- UI操作 ---
+      // モード切替
+      function toggleModel(geocentric){if(isGeocentricMode===geocentric)return;isGeocentricMode=geocentric;if(isTrackingEarth)toggleEarthTracking();createPlanetObjects();populatePlanetList();resetCameraAndControls();document.getElementById('modeTitle').textContent=isGeocentricMode?'天動説モード（地球中心）':'地動説モード（太陽中心）';updateModelButtonState();updateAllOrbitVisibility(); resetOrbitDisplay(); /* ★ モード切替時に軌跡表示もリセット */}
+      // モードボタン状態更新
+      function updateModelButtonState(){const h=document.getElementById('heliocentricBtn'),g=document.getElementById('geocentricBtn');if(isGeocentricMode){g.classList.add('selected');h.classList.remove('selected');}else{h.classList.add('selected');g.classList.remove('selected');}}
+      // 地球追跡
+      function toggleEarthTracking(){isTrackingEarth=!isTrackingEarth;const t=document.getElementById('trackEarthBtn');t.textContent=isTrackingEarth?'追跡解除':'地球追跡';if(isTrackingEarth){const e=planets.find(p=>p.name==="Earth");if(e&&e.mesh)orbitControls.target.copy(e.mesh.position);}else{orbitControls.target.set(0,0,0);}orbitControls.update();}
+      // カメラリセット
+      function resetCameraAndControls(){camera.position.set(100,150,500);orbitControls.target.set(0,0,0);camera.lookAt(orbitControls.target);orbitControls.enablePan=true;orbitControls.minDistance=1;orbitControls.maxDistance=15000;orbitControls.zoomSpeed=1;orbitControls.update();}
+      // リサイズ
+      function onWindowResize(){camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();renderer.setSize(window.innerWidth,window.innerHeight);labelRenderer.setSize(window.innerWidth,window.innerHeight);}
+      // マウス移動
+      function onPointerMove(e){pointer.x=(e.clientX/window.innerWidth)*2-1;pointer.y=-(e.clientY/window.innerHeight)*2+1;}
+      // クリック
+      function onClick(e){const cr=document.getElementById('controlPanel').getBoundingClientRect();const ip=document.getElementById('infoPanel');const ir=ip.getBoundingClientRect();const dr=document.getElementById('date').getBoundingClientRect();if(e.clientX>=cr.left&&e.clientX<=cr.right&&e.clientY>=cr.top&&e.clientY<=cr.bottom)return;if(ip.style.display!=='none'&&e.clientX>=ir.left&&e.clientX<=ir.right&&e.clientY>=ir.top&&e.clientY<=ir.bottom)return;if(e.clientX>=dr.left&&e.clientX<=dr.right&&e.clientY>=dr.top&&e.clientY<=dr.bottom)return;raycaster.setFromCamera(pointer,camera);const ints=raycaster.intersectObjects(planetObjects);if(ints.length>0){const o=ints[0].object;if(o.userData.planetData){const p=o.userData.planetData;selectPlanet(p);}}else{if(selectedPlanet)deselectPlanet();}}
+      // 一時停止
+      function togglePause(){isPaused=!isPaused;document.getElementById('pauseBtn').textContent=isPaused?'再開':'一時停止';}
+      // 速度変更
+      function updateSpeed(){timeScale=parseFloat(document.getElementById('speedSlider').value);document.getElementById('speedValue').textContent=timeScale.toFixed(1);}
+      // 日付変更
+      function updateDate(){const ds=document.getElementById('dateInput').value;const nd=new Date(ds);if(!isNaN(nd.getTime())){date.setTime(nd.getTime());updateAllPlanetPositions();if(isPaused){renderer.render(scene,camera);labelRenderer.render(scene,camera);}}}
+      // 日付フォーマット
+      function formatDateForInput(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0'),h=String(d.getHours()).padStart(2,'0'),min=String(d.getMinutes()).padStart(2,'0');return`${y}-${m}-${day}T${h}:${min}`;}
     </script>
-  </head>
-  <body>
+</head>
+<body>
     <div>
-      <!-- Three.js用のcanvasタグ -->
-      <canvas id="myCanvas"></canvas> <!-- スタイルはCSSで指定 -->
-
-      <!-- 日時表示 -->
+      <canvas id="myCanvas"></canvas>
       <div id="date"></div>
-
-      <!-- コントロールパネル -->
       <div id="controlPanel">
         <h3>太陽系シミュレーション</h3>
         <div class="control-row">
@@ -859,21 +297,25 @@
         <div class="control-row button-group">
           <button id="pauseBtn">一時停止</button>
           <button id="trackEarthBtn">地球追跡</button>
-          <!-- ★ 地球視点ボタン削除 -->
         </div>
         <div class="control-row">
           <label for="speedSlider">速度:</label>
-          <input type="range" id="speedSlider" min="0.1" max="50" step="0.1" value="1"> <!-- 最大速度変更 -->
-          <span id="speedValue" style="display: inline-block; width: 30px; text-align: right;">1.0</span>
+          <input type="range" id="speedSlider" min="0.1" max="100" step="0.1" value="1">
+          <span id="speedValue" style="display: inline-block; width: 35px; text-align: right;">1.0</span>
         </div>
         <div class="control-row">
           <label for="dateInput">日時:</label>
           <input type="datetime-local" id="dateInput">
         </div>
+        <div id="planetSelection">
+          <h4>天体選択・軌道表示</h4>
+          <div id="planetList">
+            <!-- ボタンとチェックボックスはJSで生成 -->
+          </div>
+          <button id="clearSelectionBtn">選択解除</button>
+        </div>
       </div>
-
-      <!-- 惑星情報パネル -->
       <div id="infoPanel"></div>
     </div>
-  </body>
+</body>
 </html>
